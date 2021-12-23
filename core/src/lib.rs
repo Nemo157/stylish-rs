@@ -62,7 +62,7 @@ pub mod 𓀄 {
     pub use with_builtin_macros::with_builtin;
 
     pub use crate::{
-        arguments::{Argument, Arguments, FormatTrait, StdFmt},
+        arguments::{Argument, Arguments, FormatTrait, StackBoxDynStdFmtFn},
         formatter::{Align, DebugHex, FormatterArgs, Sign},
         Background, Color, Display, Foreground, Intensity, StyleDiff,
     };

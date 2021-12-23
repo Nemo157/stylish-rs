@@ -1,48 +1,37 @@
 use crate::{formatter::FormatterArgs, Display, Formatter, Result, StyleDiff};
 
-type StdFmtFn<'a> = dyn Fn(&mut core::fmt::Formatter<'_>) -> Result + 'a;
-
-#[doc(hidden)] // workaround https://github.com/rust-lang/rust/issues/85522
-pub struct StdFmt<'a>(stack_dst::ValueA<StdFmtFn<'a>, [usize; 3]>);
-
-impl<'a> StdFmt<'a> {
-    #[doc(hidden)] // workaround https://github.com/rust-lang/rust/issues/85526
-    pub fn new(f: impl Fn(&mut core::fmt::Formatter<'_>) -> Result + 'a) -> StdFmt<'a> {
-        // not possible(/easy) to correctly type the closure, but with the cast
-        // inference works
-        #[allow(trivial_casts)]
-        StdFmt(
-            stack_dst::ValueA::new_stable(f, |p| p as _)
-                .map_err(|_| ())
-                .expect("StdFmt was more than 3 words, this is a bug in stylish-core"),
-        )
+stackbox::custom_dyn! {
+    pub dyn StdFmtFn: Fn(&mut core::fmt::Formatter<'_>) -> Result {
+        fn call(self: &Self, arg: &mut core::fmt::Formatter<'_>) -> Result {
+            self(arg)
+        }
     }
 }
 
-impl core::fmt::Display for StdFmt<'_> {
+impl core::fmt::Display for StackBoxDynStdFmtFn<'_> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result {
-        (self.0)(f)
+        self.call(f)
     }
 }
 
-impl core::fmt::Debug for StdFmt<'_> {
+impl core::fmt::Debug for StackBoxDynStdFmtFn<'_> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result {
-        (self.0)(f)
+        self.call(f)
     }
 }
 
 #[doc(hidden)] // workaround https://github.com/rust-lang/rust/issues/85522
 #[allow(missing_debug_implementations)]
 pub enum FormatTrait<'a> {
-    Display(StdFmt<'a>),
-    Debug(StdFmt<'a>),
-    Octal(StdFmt<'a>),
-    LowerHex(StdFmt<'a>),
-    UpperHex(StdFmt<'a>),
-    Pointer(StdFmt<'a>),
-    Binary(StdFmt<'a>),
-    LowerExp(StdFmt<'a>),
-    UpperExp(StdFmt<'a>),
+    Display(StackBoxDynStdFmtFn<'a>),
+    Debug(StackBoxDynStdFmtFn<'a>),
+    Octal(StackBoxDynStdFmtFn<'a>),
+    LowerHex(StackBoxDynStdFmtFn<'a>),
+    UpperHex(StackBoxDynStdFmtFn<'a>),
+    Pointer(StackBoxDynStdFmtFn<'a>),
+    Binary(StackBoxDynStdFmtFn<'a>),
+    LowerExp(StackBoxDynStdFmtFn<'a>),
+    UpperExp(StackBoxDynStdFmtFn<'a>),
     Stylish(&'a dyn Display),
 }
 

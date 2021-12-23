@@ -212,7 +212,7 @@ impl<'a> ToTokens for Scoped<'a, (FormatTrait, TokenStream)> {
                 quote!(#export::FormatTrait::Stylish(#arg))
             }
             (format_trait, arg) => {
-                quote!(#export::FormatTrait::#format_trait(match #arg { __stylish_arg => #export::StdFmt::new(move |f| #export::fmt::#format_trait::fmt(__stylish_arg, f)) }))
+                quote!(#export::FormatTrait::#format_trait(match #arg { __stylish_arg => #export::stackbox!(move |f| #export::fmt::#format_trait::fmt(__stylish_arg, f)).into_dyn() }))
             }
         }
         .to_tokens(tokens)
