@@ -1,11 +1,12 @@
 [package]
 name = "stylish-style"
 version = "0.1.0"
-edition = "2021"
-repository = "https://github.com/Nullus157/stylish-rs"
-license = "MIT OR Apache-2.0"
 description = "Internal implementation details of `stylish-core`"
-readme = "../README.md"
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+readme.workspace = true
+include.workspace = true
 
 [features]
 default = ["std"]
@@ -13,8 +14,7 @@ std = ["alloc"]
 alloc = []
 
 [dev-dependencies]
-stylish.path = ".."
-stylish.version = "0.1.0"
+stylish.workspace = true
 
 [package.metadata.docs.rs]
 all-features = true

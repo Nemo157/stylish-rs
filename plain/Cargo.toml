@@ -1,11 +1,12 @@
 [package]
 name = "stylish-plain"
 version = "0.1.0"
-edition = "2021"
-repository = "https://github.com/Nullus157/stylish-rs"
-license = "MIT OR Apache-2.0"
 description = "`stylish` helpers for discarding styles"
-readme = "../README.md"
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+readme.workspace = true
+include.workspace = true
 
 [features]
 default = ["std"]
@@ -15,13 +16,10 @@ macros = ["stylish-core/macros"]
 _tests = []
 
 [dependencies]
-stylish-core.default-features = false
-stylish-core.path = "../core"
-stylish-core.version = "0.1.0"
+stylish-core.workspace = true
 
 [dev-dependencies]
-stylish.path = ".."
-stylish.version = "0.1.0"
+stylish.workspace = true
 
 [package.metadata.docs.rs]
 all-features = true

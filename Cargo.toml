@@ -1,12 +1,28 @@
 [package]
 name = "stylish"
 version = "0.1.0"
+description = "Yet another crate implementing colorized text"
+readme.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[workspace.package]
+readme = "README.md"
 edition = "2021"
 repository = "https://github.com/Nullus157/stylish-rs"
-description = "Yet another crate implementing colorized text"
 license = "MIT OR Apache-2.0"
+include = ["src", "../LICENSE-MIT", "../LICENSE-APACHE"]
 
-[workspace]
+[workspace.dependencies]
+stylish-core.default-features = false
+stylish-core.path = "core"
+stylish-core.version = "0.1.0"
+stylish-style.default-features = false
+stylish-style.path = "style"
+stylish-style.version = "=0.1.0"
+stylish.path = "."
+stylish.version = "0.1.0"
 
 [features]
 default = ["std", "macros"]
@@ -40,9 +56,7 @@ stylish-ansi.default-features = false
 stylish-ansi.path = "ansi"
 stylish-ansi.version = "0.1.0"
 stylish-ansi.optional = true
-stylish-core.default-features = false
-stylish-core.path = "core"
-stylish-core.version = "0.1.0"
+stylish-core.workspace = true
 stylish-html.default-features = false
 stylish-html.path = "html"
 stylish-html.version = "0.1.0"

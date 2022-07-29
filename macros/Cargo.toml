@@ -1,16 +1,20 @@
 [package]
 name = "stylish-macros"
 version = "0.1.0"
-edition = "2021"
-repository = "https://github.com/Nullus157/stylish-rs"
-license = "MIT OR Apache-2.0"
 description = "Internal implementation details of `stylish-core`"
-readme = "../README.md"
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+readme.workspace = true
+include.workspace = true
 
 [lib]
 proc-macro = true
 
 [dependencies]
+stylish-style.workspace = true
+stylish-style.features = ["alloc"]
+
 nom.default-features = false
 nom.features = ["std"]
 nom.version = "6.0.1"
@@ -21,10 +25,6 @@ quote.version = "1.0.8"
 syn.default-features = false
 syn.features = ["full", "parsing", "proc-macro", "printing"]
 syn.version = "1.0.57"
-stylish-style.default-features = false
-stylish-style.features = ["alloc"]
-stylish-style.version = "=0.1.0"
-stylish-style.path = "../style"
 
 [package.metadata.docs.rs]
 all-features = true
