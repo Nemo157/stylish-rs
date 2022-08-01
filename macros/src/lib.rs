@@ -13,7 +13,7 @@
 #![warn(variant_size_differences)]
 #![cfg_attr(stylish_proc_macro_expand, feature(proc_macro_expand))]
 
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Not};
 
 use proc_macro2::Span;
 use quote::{quote, ToTokens};
@@ -140,6 +140,16 @@ fn format_args_impl(
     let implicit_named_args_ident = Ident::new("__stylish_implicit_named_args", Span::mixed_site());
     let mut implicit_named_args_values = Vec::new();
     let mut next_arg_iter = (0..num_positional_args).map(Index::from);
+    let ref mut each_slot = vec![];
+    let ref mut next_slot = {
+        let mut idxs = 0_usize ..;
+        let each_slot = &mut *each_slot;
+        move || {
+            let slot = ::quote::format_ident!("__stylish_slot_{}", idxs.next().unwrap(), span=Span::mixed_site());
+            each_slot.push(slot.clone());
+            slot
+        }
+    };
     let pieces: Vec<_> = format
         .pieces
         .into_iter()
@@ -188,7 +198,8 @@ fn format_args_impl(
                         }
                     }
                 };
-                let arg = (format_trait, arg);
+                let slot = matches!(format_trait, format::FormatTrait::Stylish).not().then(&mut *next_slot);
+                let arg = (format_trait, arg, slot);
                 let arg = Scoped::new(&export, &arg);
                 quote!(#export::Argument::Arg {
                     args: #formatter_args,
@@ -201,10 +212,13 @@ fn format_args_impl(
     let implicit_named_args = quote! {
         (#(&#implicit_named_args_values,)*)
     };
+    let mk_each_slot = each_slot.iter().map(|_| quote!(
+        &mut #export::stackbox::mk_slot()
+    ));
     quote! {
         #export::Arguments {
-            pieces: &match (#positional_args, #named_args, #implicit_named_args) {
-                (#positional_args_ident, #named_args_ident, #implicit_named_args_ident) => [
+            pieces: &match (#positional_args, #named_args, #implicit_named_args, (#(#mk_each_slot ,)*)) {
+                (#positional_args_ident, #named_args_ident, #implicit_named_args_ident, (#(#each_slot ,)*)) => [
                     #(#pieces),*
                 ],
             }

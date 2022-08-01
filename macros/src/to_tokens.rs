@@ -204,15 +204,16 @@ impl ToTokens for FormatTrait {
     }
 }
 
-impl<'a> ToTokens for Scoped<'a, (FormatTrait, TokenStream)> {
+impl<'a> ToTokens for Scoped<'a, (FormatTrait, TokenStream, Option<::proc_macro2::Ident>)> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let export = &self.export;
         match self.as_ref() {
-            (FormatTrait::Stylish, arg) => {
+            (FormatTrait::Stylish, arg, _slot) => {
                 quote!(#export::FormatTrait::Stylish(#arg))
             }
-            (format_trait, arg) => {
-                quote!(#export::FormatTrait::#format_trait(match #arg { __stylish_arg => #export::stackbox!(move |f| #export::fmt::#format_trait::fmt(__stylish_arg, f)).into_dyn() }))
+            (format_trait, arg, slot) => {
+                let slot = slot.as_ref().unwrap();
+                quote!(#export::FormatTrait::#format_trait(match #arg { __stylish_arg => #slot.stackbox(move |f| #export::fmt::#format_trait::fmt(__stylish_arg, f)).into_dyn() }))
             }
         }
         .to_tokens(tokens)
