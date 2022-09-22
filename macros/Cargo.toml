@@ -11,9 +11,6 @@ readme = "../README.md"
 proc-macro = true
 
 [dependencies]
-nom.default-features = false
-nom.features = ["std"]
-nom.version = "7.1.1"
 proc-macro2.default-features = false
 proc-macro2.version = "1.0.24"
 quote.default-features = false
@@ -27,6 +24,7 @@ stylish-style.version = "=0.1.0"
 stylish-style.path = "../style"
 unicode-ident.default-features = false
 unicode-ident.version = "1.0.3"
+chumsky = { version = "0.8.0", default-features = false }
 
 [package.metadata.docs.rs]
 all-features = true

@@ -6,7 +6,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use stylish_style::{Color, Foreground, Intensity, StyleDiff};
 
-use crate::format::{Align, Count, DebugHex, FormatTrait, FormatterArgs, Sign};
+use crate::parse::{Align, Count, DebugHex, FormatTrait, FormatterArgs, Sign};
 
 fn quote_opt<'a, T: 'a>(opt: Scoped<'a, Option<T>>) -> TokenStream
 where
@@ -139,7 +139,7 @@ impl<'a> ToTokens for Scoped<'a, Sign> {
     }
 }
 
-impl<'a, 'b: 'a> ToTokens for Scoped<'a, Count<'b>> {
+impl<'a> ToTokens for Scoped<'a, Count> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self.as_ref() {
             Count::Parameter(_) => todo!(),
@@ -159,7 +159,7 @@ impl<'a> ToTokens for Scoped<'a, DebugHex> {
     }
 }
 
-impl<'a, 'b: 'a> ToTokens for Scoped<'a, FormatterArgs<'b>> {
+impl<'a> ToTokens for Scoped<'a, FormatterArgs> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let export = &self.export;
         let FormatterArgs {

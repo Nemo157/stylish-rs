@@ -16,11 +16,11 @@ use syn::{
 };
 
 use self::{
-    format::{Format, FormatArg, FormatArgRef, FormatSpec, Parse as _, Piece},
+    parse::{Format, FormatArg, FormatArgRef, FormatSpec, Piece},
     to_tokens::Scoped,
 };
 
-mod format;
+mod parse;
 mod to_tokens;
 
 struct ArgsInput {
@@ -109,8 +109,7 @@ fn format_args_impl(
     let span = format.span();
     let format_string = &format;
     let format = format.value();
-    let (leftover, format) = Format::parse(&format).unwrap();
-    assert!(leftover.is_empty());
+    let format = Format::parse(&format).unwrap();
     let num_positional_args = positional_args.len();
     let positional_args = positional_args.into_iter();
     let positional_args = quote! { (#(&#positional_args,)*) };
@@ -156,7 +155,7 @@ fn format_args_impl(
                         quote!(__stylish_positional_args.#index)
                     }
                     Some(FormatArgRef::Named(name)) => {
-                        if let Some(&i) = named_args_names.get(name) {
+                        if let Some(&i) = named_args_names.get(&name) {
                             let index = Index::from(i);
                             quote!(__stylish_named_args.#index)
                         } else {
@@ -165,7 +164,7 @@ fn format_args_impl(
                                 attrs: Vec::new(),
                                 qself: None,
                                 path: Ident::new(
-                                    name,
+                                    &name,
                                     Span::call_site().resolved_at(format_string.span()),
                                 )
                                 .into(),
