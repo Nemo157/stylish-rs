@@ -7,7 +7,6 @@
 
 use std::collections::HashMap;
 
-use proc_macro2::Span;
 use quote::{quote, ToTokens};
 use syn::{
     parse::{ParseStream, Result},
@@ -107,9 +106,9 @@ fn format_args_impl(
     let export: syn::Path = syn::parse_quote!(#krate::𓀄);
 
     let span = format.span();
-    let format_string = &format;
-    let format = format.value();
-    let (leftover, format) = Format::parse(&format).unwrap();
+    let format_lit = &format;
+    let format_string = format.value();
+    let (leftover, format) = Format::parse(&format_string).unwrap();
     assert!(leftover.is_empty());
     let num_positional_args = positional_args.len();
     let positional_args_ident = Ident::new("__stylish_positional_args", Span::mixed_site());
@@ -166,12 +165,16 @@ fn format_args_impl(
                             quote!(#named_args_ident.#index)
                         } else {
                             let i = implicit_named_args_values.len();
+                            let start = (name.as_ptr() as usize) - (format_string.as_str().as_ptr() as usize);
+                            let end = start + name.len();
+                            // TODO: subspan needs to be offset to handle the quotes and encoded characters
+                            // https://github.com/dtolnay/syn/issues/1219
                             implicit_named_args_values.push(ExprPath {
                                 attrs: Vec::new(),
                                 qself: None,
                                 path: Ident::new(
                                     name,
-                                    Span::call_site().resolved_at(format_string.span()),
+                                    format_lit.token().subspan(start..end).unwrap_or_else(|| format_lit.span()),
                                 )
                                 .into(),
                             });
